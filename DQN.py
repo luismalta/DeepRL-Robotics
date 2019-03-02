@@ -5,7 +5,6 @@ import random
 import gym
 from gym import wrappers
 import gym_gazebo
-#from __future__ import division
 import argparse
 
 from PIL import Image
@@ -54,19 +53,20 @@ if __name__ == "__main__":
     tbCallBack.set_model(model)
     # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
     # even the metrics!
-    memory = SequentialMemory(limit=100000, window_length=1)
+    memory = SequentialMemory(limit=50000, window_length=1)
     policy = BoltzmannQPolicy()
     dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
                    enable_double_dqn=False, target_model_update=1e-2, policy=policy)
     dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
-    if (os.path.isfile('/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')):
-        dqn.load_weights('/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')
+    if (os.path.isfile('/home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')):
+        print('Loading previous model...')
+        dqn.load_weights('/home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')
 
     # Okay, now it's time to learn something! We visualize the training here for show, but this
     # slows down training quite a lot. You can always safely abort the training prematurely using
     # Ctrl + C.
-    dqn.fit(env, nb_steps=50000, visualize=False, verbose=2, callbacks=[tbCallBack])
+    dqn.fit(env, nb_steps=200000, visualize=False, verbose=2, callbacks=[tbCallBack])
 
     # After training is done, we save the final weights.
-    dqn.save_weights('/models/drl_{}_weights.h5f'.format('GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN'), overwrite=True)
+    dqn.save_weights('/home/luismalta/Projects/DeepRL/models/drl_{}_weights.h5f'.format('GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN'), overwrite=True)
