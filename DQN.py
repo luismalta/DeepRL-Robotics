@@ -34,7 +34,7 @@ if __name__ == "__main__":
     env.seed(123)
     nb_actions = 3
 
-    # Next, we build a very simple model.
+
     model = Sequential()
     model.add(Flatten(input_shape=(1,) + (1,1,32,32)))
     model.add(Dense(16))
@@ -51,8 +51,7 @@ if __name__ == "__main__":
     tbCallBack = keras.callbacks.TensorBoard(log_dir='./logs/DQN', histogram_freq=0, batch_size=32, write_graph=True, write_grads=False, write_images=True, embeddings_freq=0, embeddings_layer_names=None, embeddings_metadata=None, embeddings_data=None, update_freq='epoch')
 
     tbCallBack.set_model(model)
-    # Finally, we configure and compile our agent. You can use every built-in Keras optimizer and
-    # even the metrics!
+
     memory = SequentialMemory(limit=50000, window_length=1)
     policy = BoltzmannQPolicy()
     dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
@@ -63,10 +62,8 @@ if __name__ == "__main__":
         print('Loading previous model...')
         dqn.load_weights('/home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')
 
-    # Okay, now it's time to learn something! We visualize the training here for show, but this
-    # slows down training quite a lot. You can always safely abort the training prematurely using
-    # Ctrl + C.
+
     dqn.fit(env, nb_steps=200000, visualize=False, verbose=2, callbacks=[tbCallBack])
 
-    # After training is done, we save the final weights.
+
     dqn.save_weights('/home/luismalta/Projects/DeepRL/models/drl_{}_weights.h5f'.format('GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN'), overwrite=True)
