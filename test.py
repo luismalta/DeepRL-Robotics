@@ -63,14 +63,15 @@ if __name__ == "__main__":
                train_interval=4, delta_clip=1.)
     dqn.compile(Adam(lr=.00025), metrics=['mae'])
 
-    if (os.path.isfile('/home/luismalta/Projects/DeepRL/models//home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f.h5f')):
+    if (os.path.isfile('/home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')):
         print('Loading previous model...')
-        dqn.load_weights('/home/luismalta/Projects/DeepRL/models//home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f.h5f')
+        dqn.load_weights('/home/luismalta/Projects/DeepRL/models/drl_GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN_weights.h5f')
 
     # Okay, now it's time to learn something! We visualize the training here for show, but this
     # slows down training quite a lot. You can always safely abort the training prematurely using
     # Ctrl + C.
-    dqn.fit(env, nb_steps=1000000, visualize=False, verbose=2, callbacks=[tbCallBack])
+    dqn.test(env, nb_episodes=100, visualize=False)
 
     # After training is done, we save the final weights.
-    dqn.save_weights('/home/luismalta/Projects/DeepRL/models/drl_{}_weights.h5f'.format('GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN'), overwrite=False)
+    #dqn.save_weights('/home/luismalta/Projects/DeepRL/models/drl_{}_weights.h5f'.format('GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN'), overwrite=False)
+    #model.save_model('/home/luismalta/Projects/DeepRL/models/drl_{}_weights.h5f'.format('GazeboCircuit2cTurtlebotCameraNnEnv-v0_DQN')
