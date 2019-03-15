@@ -25,9 +25,23 @@ import os.path
 import argparse
 import sys
 
-parser = argparse.ArgumentParser(description='Type of run: Train or Test')
-parser.add_argument('-t', '--type', help='Type of run: Train or Test', required=True)
+from datetime import datetime
+
+parser = argparse.ArgumentParser(description='DQN agent')
+parser.add_argument('-w', '--weight', help='Weight file name',default=None)
+parser.add_argument('--train', action='store_true', help='Train agent')
+parser.add_argument('--test', action='store_true', help='Test agent')
 args = parser.parse_args()
+
+nb_steps = 10
+nb_episodes = 100
+log_dir = './logs/DQN/log_{}'.format(datetime.now().strftime('%d-%m-%Y_%H:%M'))
+
+if(args.test == True and args.weight == None):
+    print("Provide the weight file name")
+    sys.exit()
+else:
+    weight_dir = 'models/DQN/{}.h5f'.format(args.weight)
 
 #Build the model for the agent
 def build_model():
@@ -50,20 +64,21 @@ def build_model():
 #Train the model
 def train():
     print("Training model...")
-    dqn.fit(env, nb_steps=1000000, visualize=False, verbose=2, callbacks=[tbCallBack])
+    dqn.fit(env, nb_steps=nb_steps, visualize=False, verbose=2, callbacks=[tbCallBack])
 
-    dqn.save_weights('models/DQN/drl_{}_weights.h5f'.format('DQN'), overwrite=False)
+    dqn.save_weights('./models/DQN/{}_steps_{}_weights.h5f'.format(nb_steps,datetime.now().strftime('%d-%m-%Y_%H:%M')), overwrite=False)
+
 
 #Test the model
 def test():
     print("Testing model...")
-    dqn.test(env, nb_episodes=100, visualize=False)
+    dqn.test(env, nb_episodes=nb_episodes, visualize=False)
 
 
 if __name__ == "__main__":
 
-    if (args.type != "train" and args.type != "test"):
-        print('Invalid Option')
+    if (args.train == False and args.test == False):
+        print('No flag was passed')
         sys.exit()
 
     #Env setup
@@ -79,7 +94,7 @@ if __name__ == "__main__":
     model = build_model()
 
     #Tensorboard callback
-    tbCallBack = keras.callbacks.TensorBoard(log_dir='./logs/DQN', histogram_freq=0,
+    tbCallBack = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=0,
                                         batch_size=32, write_graph=True, write_grads=False,
                                         write_images=True, embeddings_freq=0, embeddings_layer_names=None,
                                         embeddings_metadata=None, embeddings_data=None, update_freq='epoch')
@@ -98,11 +113,11 @@ if __name__ == "__main__":
     dqn.compile(Adam(lr=.00025), metrics=['mae'])
 
     #Check previous models
-    if (os.path.isfile('models/DQN/drl_DQN_weights.h5f')):
+    if (os.path.isfile(weight_dir)):
         print('Loading previous model...')
-        dqn.load_weights('models/DQN/drl_DQN_weights.h5f')
+        dqn.load_weights(weight_dir)
 
-    if (args.type == "train"):
+    if (args.train):
         train()
-    elif (args.type == "test"):
+    elif (args.test):
         test()
