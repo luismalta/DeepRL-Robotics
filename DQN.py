@@ -46,7 +46,7 @@ params = {
     'agent' : {
         'nb_steps_warmup':5000,
         'gamma':.99,
-        'target_model_update':10,
+        'target_model_update':10000,
         'train_interval':4,
         'delta_clip':1
     },
@@ -57,7 +57,7 @@ params = {
         'exploration_nb_steps':250000
     },
     'compile':{
-        'learn_rate':.001,
+        'learn_rate':0.00025,
         'metrics':['mae']
     }
 }

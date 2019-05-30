@@ -39,17 +39,17 @@ args = parser.parse_args()
 
 params = {
     'train_test' : {
-        'nb_steps': 1000000,
+        'nb_steps': 2000000,
         'nb_episodes_test' : 100,
         'time_start': datetime.now().strftime('%d-%m-%Y_%H:%M')
     },
     'agent' : {
         'nb_steps_warmup':5000,
         'gamma':.99,
-        'target_model_update':10,
+        'target_model_update':1e-2,
         'train_interval':4,
         'delta_clip':1,
-        'dueling_type':'avg'
+        'dueling_type':'naive'
     },
     'police':{
         'exploretion_value_max':1.,
@@ -58,7 +58,7 @@ params = {
         'exploration_nb_steps':250000
     },
     'compile':{
-        'learn_rate':.001,
+        'learn_rate':1e-3,
         'metrics':['mae']
     }
 }
