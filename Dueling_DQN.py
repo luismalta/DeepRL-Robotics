@@ -23,6 +23,7 @@ from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger, ModelIntervalCheckpoint
 
+from statistics import mean, median,pstdev
 import os.path
 import os
 import errno
@@ -39,23 +40,23 @@ args = parser.parse_args()
 
 params = {
     'train_test' : {
-        'nb_steps': 2000000,
+        'nb_steps': 1000000,
         'nb_episodes_test' : 100,
         'time_start': datetime.now().strftime('%d-%m-%Y_%H:%M')
     },
     'agent' : {
         'nb_steps_warmup':5000,
         'gamma':.99,
-        'target_model_update':1e-2,
+        'target_model_update':.0025,
         'train_interval':4,
         'delta_clip':1,
-        'dueling_type':'naive'
+        'dueling_type':'max'
     },
     'police':{
         'exploretion_value_max':1.,
         'exploretion_value_min':.1,
         'exploretion_value_test':.05,
-        'exploration_nb_steps':250000
+        'exploration_nb_steps':1000000
     },
     'compile':{
         'learn_rate':1e-3,
@@ -66,17 +67,17 @@ params = {
 
 log_dir = './logs/Dueling_DQN/log_{}'.format(params['train_test']['time_start'])
 import distutils.dir_util
-distutils.dir_util.mkpath(log_dir)
+if(args.test ==  False):
+    distutils.dir_util.mkpath(log_dir)
 
 if(args.test == True and args.weight == None):
     print("Provide the weight file name")
     sys.exit()
 else:
-    weight_dir = 'models/Dueling_DQN/{}.h5f'.format(args.weight)
-
-with open(log_dir +'/params.json', 'w') as fp:
-    json.dump(params, fp)
-
+    weight_dir = args.weight
+if(args.test ==  False):
+    with open(log_dir +'/params.json', 'w') as fp:
+        json.dump(params, fp)
 
 
 
@@ -98,6 +99,18 @@ def build_model():
 
     return model
 
+def build_test_report(test_history):
+    report = {
+        "Mean" :  mean(test_history.history["episode_reward"]),
+        "Median" : median(test_history.history["episode_reward"]),
+        "Standard deviation" : pstdev(test_history.history["episode_reward"])
+
+    }
+
+    with open(weight_dir[:-29] + '/test_report.json', 'w') as fp:
+        json.dump(report, fp)
+
+
 #Train the model
 def train():
     print("Training model...")
@@ -115,8 +128,10 @@ def test():
     print("Testing model...")
     test_history = dqn.test(env, nb_episodes=params['train_test']['nb_episodes_test'], visualize=False)
 
-    with open(log_dir + '/test_history.json', 'w') as fp:
+    with open(weight_dir[:-29] + '/test_history.json', 'w') as fp:
         json.dump(test_history.history, fp)
+
+    build_test_report(test_history)
 
 if __name__ == "__main__":
 
@@ -158,9 +173,9 @@ if __name__ == "__main__":
     dqn.compile(Adam(lr=params['compile']['learn_rate']), metrics=params['compile']['metrics'])
 
     #Check previous models
-    if (os.path.isfile(weight_dir)):
-        print('Loading previous model...')
-        dqn.load_weights(weight_dir)
+    # if (os.path.isfile(weight_dir)):
+    #     print('Loading previous model...')
+    #     dqn.load_weights(weight_dir)
 
     if (args.train):
         train()

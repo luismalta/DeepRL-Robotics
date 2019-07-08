@@ -23,6 +23,7 @@ from rl.policy import LinearAnnealedPolicy, EpsGreedyQPolicy
 from rl.memory import SequentialMemory
 from rl.callbacks import FileLogger, ModelIntervalCheckpoint
 
+from statistics import mean, median,pstdev
 import os.path
 import os
 import errno
@@ -65,17 +66,17 @@ params = {
 
 log_dir = './logs/DQN/log_{}'.format(params['train_test']['time_start'])
 import distutils.dir_util
-distutils.dir_util.mkpath(log_dir)
+if(args.test ==  False):
+    distutils.dir_util.mkpath(log_dir)
 
 if(args.test == True and args.weight == None):
     print("Provide the weight file name")
     sys.exit()
 else:
     weight_dir = args.weight
-
-with open(log_dir +'/params.json', 'w') as fp:
-    json.dump(params, fp)
-
+if(args.test ==  False):
+    with open(log_dir +'/params.json', 'w') as fp:
+        json.dump(params, fp)
 
 
 
@@ -97,10 +98,22 @@ def build_model():
 
     return model
 
+def build_test_report(test_history):
+    report = {
+        "Mean" :  mean(test_history.history["episode_reward"]),
+        "Median" : median(test_history.history["episode_reward"]),
+        "Standard deviation" : pstdev(test_history.history["episode_reward"])
+
+    }
+
+    with open(weight_dir[:-29] + '/test_report.json', 'w') as fp:
+        json.dump(report, fp)
+
+
 #Train the model
 def train():
     print("Training model...")
-    train_history = dqn.fit(env, nb_steps=params['train_test']['nb_steps'], visualize=False, verbose=2, callbacks=[tbCallBack])
+    train_history = dqn.fit(env, nb_steps=params['train_test']['nb_steps'], visualize=False, verbose=2)
     print(train_history)
 
     with open(log_dir + '/train_history.json', 'w') as fp:
@@ -114,8 +127,11 @@ def test():
     print("Testing model...")
     test_history = dqn.test(env, nb_episodes=params['train_test']['nb_episodes_test'], visualize=False)
 
-    with open(log_dir + '/test_history.json', 'w') as fp:
+    print("Writing history")
+    with open(weight_dir[:-29] + '/test_history.json', 'w') as fp:
         json.dump(test_history.history, fp)
+
+    build_test_report(test_history)
 
 if __name__ == "__main__":
 
@@ -136,11 +152,11 @@ if __name__ == "__main__":
     model = build_model()
 
     #Tensorboard callback
-    tbCallBack = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=0,
-                                        batch_size=32, write_graph=True, write_grads=False,
-                                        write_images=True, embeddings_freq=0, embeddings_layer_names=None,
-                                        embeddings_metadata=None, embeddings_data=None, update_freq='epoch')
-    tbCallBack.set_model(model)
+    #tbCallBack = keras.callbacks.TensorBoard(log_dir=log_dir, histogram_freq=0,
+    #                                     batch_size=32, write_graph=True, write_grads=False,
+    #                                     write_images=True, embeddings_freq=0, embeddings_layer_names=None,
+    #                                     embeddings_metadata=None, embeddings_data=None, update_freq='epoch')
+    # tbCallBack.set_model(model)
 
     #Agent configuration
     memory = SequentialMemory(limit=50000, window_length=1)
