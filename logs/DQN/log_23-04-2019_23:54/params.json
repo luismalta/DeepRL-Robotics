@@ -1,1 +1,26 @@
-{"compile": {"metrics": ["mae"], "learn_rate": 0.0001}, "train_test": {"nb_episodes_test": 100, "time_start": "23-04-2019_23:54", "nb_steps": 1000000}, "police": {"exploration_nb_steps": 250000, "exploretion_value_max": 1.0, "exploretion_value_min": 0.1, "exploretion_value_test": 0.05}, "agent": {"target_model_update": 1000, "train_interval": 4, "nb_steps_warmup": 5000, "delta_clip": 1, "gamma": 0.99}}
+{
+  "compile": {
+    "metrics": [
+      "mae"
+    ],
+    "learn_rate": 0.0001
+  },
+  "train_test": {
+    "nb_episodes_test": 100,
+    "time_start": "23-04-2019_23:54",
+    "nb_steps": 1000000
+  },
+  "police": {
+    "exploration_nb_steps": 250000,
+    "exploretion_value_max": 1,
+    "exploretion_value_min": 0.1,
+    "exploretion_value_test": 0.05
+  },
+  "agent": {
+    "target_model_update": 1000,
+    "train_interval": 4,
+    "nb_steps_warmup": 5000,
+    "delta_clip": 1,
+    "gamma": 0.99
+  }
+}

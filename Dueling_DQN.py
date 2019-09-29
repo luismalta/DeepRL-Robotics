@@ -47,10 +47,10 @@ params = {
     'agent' : {
         'nb_steps_warmup':5000,
         'gamma':.99,
-        'target_model_update':.0025,
+        'target_model_update':1,
         'train_interval':4,
         'delta_clip':1,
-        'dueling_type':'max'
+        'dueling_type':'avg'
     },
     'police':{
         'exploretion_value_max':1.,
@@ -59,7 +59,7 @@ params = {
         'exploration_nb_steps':1000000
     },
     'compile':{
-        'learn_rate':1e-3,
+        'learn_rate':0.01,
         'metrics':['mae']
     }
 }
